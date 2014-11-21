@@ -1,0 +1,48 @@
+body{
+    font-family: helvetica, arial, sans-serif;
+    font-size: 18px;
+}
+.wrapper{
+    position:absolute;
+    background:#333;
+    display:block;
+    margin:0;
+    padding:0;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.container{
+    margin:15px;
+}
+
+textarea{
+    clear: both;
+    min-width:100px;
+    min-height:100px;
+    display:block;
+    border: none;
+    border-radius: 3px;
+}
+
+.close-btn{
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width:22px;
+    height: 22px;
+    padding: 0;
+    margin-top: -3px;
+    margin-left: -20px;
+    color: #333333;
+    background: #ffffff;
+    border: 1px solid #999999;
+    border-radius: 50%;
+    display: block;
+    text-decoration: none;
+    text-align: center;
+}
+/* close button click interaction */
+.close-btn:active{
+    margin-top: -2px;
+}
