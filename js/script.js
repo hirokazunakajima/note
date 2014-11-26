@@ -57,6 +57,11 @@ addEvent(document,'mousedown',function(e){
         }
 
         addEvent(document,'mousemove',mousemove);
+
+    }else if(target.className=='close-btn'){
+
+        console.log('close btn');
+
     }
 
 });
@@ -82,5 +87,42 @@ function mousemove(e){
         el.style.left = left + e.clientX - x - dx+ 'px';
         el.style.top = top + e.clientY - y -dx + 'px';
 
+    }
+}
+
+/* generate post it */
+
+var btn = document.querySelector('#generate');
+btn.addEventListener('click',function(e){
+
+    var div = document.createElement('DIV');
+    var section = document.createElement('SECTION');
+    var textarea = document.createElement('TEXTAREA');
+    var a = document.createElement('SPAN');
+    var closeText = document.createTextNode('x');
+
+    div.setAttribute('class','wrapper');
+    section.setAttribute('class','container');
+    setAttributes(a,{'href':' ','class':'close-btn'});
+
+    section.appendChild(textarea);
+    section.appendChild(a);
+    a.appendChild(closeText);
+
+    div.appendChild(section);
+
+    document.querySelector('body').appendChild(div);
+
+});
+
+
+/******************
+ *
+ *      Helper
+ *
+ ******************/
+function setAttributes(el,args){
+    for(var key in args){
+        el.setAttribute(key,args[key]);
     }
 }
