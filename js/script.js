@@ -36,7 +36,7 @@ function getStyle(el){
 addEvent(document,'mousedown',function(e){
 
     var target = e.target;
-    if(target.className == 'wrapper'){
+    if(target.className.search('wrapper') != -1){
         x = e.offsetX || e.layerX; //webkit || moz
         y = e.offsetY || e.layerY;
         dragging = true;
@@ -58,10 +58,6 @@ addEvent(document,'mousedown',function(e){
 
         addEvent(document,'mousemove',mousemove);
 
-    }else if(target.className=='close-btn'){
-
-        console.log('close btn');
-
     }
 
 });
@@ -75,6 +71,11 @@ addEvent(document,'mouseup',function(e){
         el.style.left = rect.left + 'px';
         el.style.top = rect.top + 'px';
         el.style.position = 'fixed';
+    }
+
+    // remove element (post-it)
+    if(e.target.className=='close-btn'){
+        document.querySelector('body').removeChild(findParent(e,'wrapper'));
     }
 });
 
@@ -95,19 +96,19 @@ function mousemove(e){
 var btn = document.querySelector('#generate');
 btn.addEventListener('click',function(e){
 
-    var div = document.createElement('DIV');
-    var section = document.createElement('SECTION');
-    var textarea = document.createElement('TEXTAREA');
-    var a = document.createElement('SPAN');
+    var div = createElement('DIV');
+    var section = createElement('SECTION');
+    var textarea = createElement('TEXTAREA');
+    var span = createElement('SPAN');
     var closeText = document.createTextNode('x');
 
     div.setAttribute('class','wrapper');
     section.setAttribute('class','container');
-    setAttributes(a,{'href':' ','class':'close-btn'});
+    setAttributes(span,{'class':'close-btn'});
 
     section.appendChild(textarea);
-    section.appendChild(a);
-    a.appendChild(closeText);
+    section.appendChild(span);
+    span.appendChild(closeText);
 
     div.appendChild(section);
 
@@ -124,5 +125,20 @@ btn.addEventListener('click',function(e){
 function setAttributes(el,args){
     for(var key in args){
         el.setAttribute(key,args[key]);
+    }
+}
+
+function createElement(el){
+    var el = el || 'DIV';
+    return document.createElement(el);
+}
+
+function findParent(e,className){
+    for(var i = 0; i< e.path.length; i++)
+    {
+        if(e.path[i].className.search(className) !=-1)
+        {
+            return e.path[i];
+        }
     }
 }
