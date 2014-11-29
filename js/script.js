@@ -58,6 +58,9 @@ addEvent(document,'mousedown',function(e){
 
         addEvent(document,'mousemove',mousemove);
 
+        // change the order of elements
+        if(list.length>1) bringToFront(e);
+
     }
 
 });
@@ -72,7 +75,6 @@ addEvent(document,'mouseup',function(e){
         el.style.top = rect.top + 'px';
         el.style.position = 'fixed';
     }
-
     // remove element (post-it)
     if(e.target.className=='close-btn'){
         document.querySelector('body').removeChild(findParent(e,'wrapper'));
@@ -94,6 +96,7 @@ function mousemove(e){
 /* generate post it */
 
 var btn = document.querySelector('#generate');
+var list=[];
 btn.addEventListener('click',function(e){
 
     var div = createElement('DIV');
@@ -103,6 +106,7 @@ btn.addEventListener('click',function(e){
     var closeText = document.createTextNode('x');
 
     div.setAttribute('class','wrapper');
+    div.setAttribute('id','post-it-'+list.length);
     section.setAttribute('class','container');
     setAttributes(span,{'class':'close-btn'});
 
@@ -111,7 +115,8 @@ btn.addEventListener('click',function(e){
     span.appendChild(closeText);
 
     div.appendChild(section);
-
+    list.push(div);
+    div.style.zIndex = list.length;
     document.querySelector('body').appendChild(div);
 
 });
@@ -133,12 +138,38 @@ function createElement(el){
     return document.createElement(el);
 }
 
-function findParent(e,className){
-    for(var i = 0; i< e.path.length; i++)
+function findParent(e,key){
+    // traverse parent until reach "null"
+    var parent = e.target; // set target itself as a default
+
+    while (parent!=null)
     {
-        if(e.path[i].className.search(className) !=-1)
+        if(parent.className.search(key) != -1 || parent.id.search(key) !=-1)
         {
-            return e.path[i];
+            return parent;
+        }else{
+            parent = parent.parentNode;
+        }
+    }
+}
+// Bring obj you clicked to front
+// 1. remove clicked pot-it from list and push to the same list again (change the order)
+// 2. set z-index again follow list array order to move post-it clicked to top z-index
+function bringToFront(e){
+
+    var clickedObj = findParent(e,e.target.id);
+
+    for(var i=0;i<list.length;i++)
+    {
+        if(list[i].id== clickedObj.id)
+        {
+            list.push(list.splice(i,1)[0]);
+
+            for(i=0;i<list.length;i++)
+            {
+                list[i].style.zIndex = i;
+            }
+            break;
         }
     }
 }
