@@ -111,16 +111,21 @@ btn.addEventListener('click',function(e){
     var section = createElement('SECTION');
     var textarea = createElement('TEXTAREA');
     var span = createElement('SPAN');
-    var closeText = document.createTextNode('x');
+    var textX = document.createTextNode('x');
+    var button = createElement('BUTTON');
+    var textSave = document.createTextNode('save');
 
     div.setAttribute('class','wrapper');
     div.setAttribute('id','post-it-'+list.length);
     section.setAttribute('class','container');
-    setAttributes(span,{'class':'close-btn'});
+    span.setAttribute('class','close-btn');
+    setAttributes(button,{'class':'save-btn','id':'button-'+list.length});
 
     section.appendChild(textarea);
     section.appendChild(span);
-    span.appendChild(closeText);
+    section.appendChild(button);
+    span.appendChild(textX);
+    button.appendChild(textSave);
 
     div.appendChild(section);
     list.push(div);
@@ -148,6 +153,13 @@ function bringToFront(clickedObj){
         }
     }
 }
+
+/******************
+
+    save note data
+
+*******************/
+
 
 /******************
  *
@@ -180,4 +192,5 @@ function findParent(e,key){
     }
     return false;
 }
+
 
