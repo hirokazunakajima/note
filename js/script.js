@@ -1,6 +1,34 @@
-/*
-*   drag able contents ( not for IE now )
-*/
+
+
+/******************
+
+ check local storage availability
+
+ *******************/
+
+window.onload = function(){
+
+    if(isLocalStorage()){
+        console.log('localStorage OK');
+
+    }else{
+        console.log('localStorage NO');
+    }
+}
+
+function isLocalStorage() {
+    try {
+        return 'localStorage' in window && window['localStorage'] !== null;
+    } catch(e){
+        return false;
+    }
+}
+
+/******************
+
+    mouse related event
+
+ *******************/
 
 var root = document.documentElement;
 var dragging = false;
@@ -82,7 +110,26 @@ addEvent(document,'mouseup',function(e){
     // remove element (note)
     if(e.target.className=='close-btn')
     {
+        var textArea = e.target.previousSibling;
+        var s = getStyle(textArea);
+
         var targetNote = findParent(e,'wrapper');
+        // save textarea data as JSON format
+        var dataObj ={
+            'width': s.width,
+            'height': s.height,
+            'text':textArea.value
+        }
+
+        // save into localStrage for 5 seconds...
+        localStorage.setItem(targetNote.id,JSON.stringify(dataObj));
+
+        // after 5 seconds..remove data
+        // if undo area click I use localStorage data after JSON.parse them, and clear timeout.
+        var timeout = setTimeout(function(){
+            localStorage.removeItem(targetNote.id);
+        },5000);
+
         document.querySelector('body').removeChild(targetNote);
         // remove element from list as well
         list.splice(list.indexOf(targetNote),1);
@@ -101,7 +148,11 @@ function mousemove(e){
     }
 }
 
-/* generate note */
+/******************
+
+     generate note
+
+ *******************/
 
 var btn = document.querySelector('#generate');
 var list=[];
@@ -110,22 +161,19 @@ btn.addEventListener('click',function(e){
     var div = createElement('DIV');
     var section = createElement('SECTION');
     var textarea = createElement('TEXTAREA');
+//    textarea.style.height='200px';
+//    textarea.value = 'test';
     var span = createElement('SPAN');
     var textX = document.createTextNode('x');
-    var button = createElement('BUTTON');
-    var textSave = document.createTextNode('save');
 
     div.setAttribute('class','wrapper');
     div.setAttribute('id','post-it-'+list.length);
     section.setAttribute('class','container');
     span.setAttribute('class','close-btn');
-    setAttributes(button,{'class':'save-btn','id':'button-'+list.length});
 
     section.appendChild(textarea);
     section.appendChild(span);
-    section.appendChild(button);
     span.appendChild(textX);
-    button.appendChild(textSave);
 
     div.appendChild(section);
     list.push(div);
@@ -154,11 +202,7 @@ function bringToFront(clickedObj){
     }
 }
 
-/******************
 
-    save note data
-
-*******************/
 
 
 /******************
@@ -179,7 +223,7 @@ function createElement(el){
 
 function findParent(e,key){
     // traverse parent until reach "null"
-    var parent = e.target; // set target itself as a default
+    var parent = e.target||e; // set target itself as a default
 
     while (parent!=null)
     {
