@@ -47,10 +47,7 @@ textarea{
     margin-top: -2px;
 }
 
-.save-btn{
-    padding: 4px;
-    margin: 0;
-    display: block;
-    width: 100%;
-
+.undo-area{
+    cursor:pointer;
 }
+
