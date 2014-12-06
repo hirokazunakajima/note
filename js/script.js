@@ -124,6 +124,17 @@ addEvent(document,'mouseup',function(e){
         // save into localStrage for 5 seconds...
         localStorage.setItem(targetNote.id,JSON.stringify(dataObj));
 
+
+        var div = createElement('DIV');
+        div.setAttribute('class','undo-area');
+        div.style.backgroundColor = '#cccccc';
+        div.style.width = s.width;
+        div.style.height = s.height;
+        div.style.position = 'absolute';
+        div.style.top = targetNote.style.top;
+        div.style.left = targetNote.style.left;
+        document.querySelector('body').appendChild(div);
+
         // after 5 seconds..remove data
         // if undo area click I use localStorage data after JSON.parse them, and clear timeout.
         var timeout = setTimeout(function(){
