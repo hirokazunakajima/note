@@ -49,5 +49,16 @@ textarea{
 
 .undo-area{
     cursor:pointer;
+    display: flex;
+    position: absolute;
+    border-radius: 5px;
+    background:#eee;
+    border: 1px solid #ccc;
 }
 
+.undo-text{
+    margin: auto;
+    -webkit-user-select: none;
+    -moz-user-select: -moz-none;
+    user-select: none;
+}
