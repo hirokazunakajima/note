@@ -124,26 +124,33 @@ addEvent(document,'mouseup',function(e){
         // save into localStrage for 5 seconds...
         localStorage.setItem(targetNote.id,JSON.stringify(dataObj));
 
+        var undoArea = createElement('DIV');
+        undoArea.setAttribute('class','undo-area');
+        undoArea.style.width = s.width;
+        undoArea.style.height = s.height;
+        var offset = 20;
+        undoArea.style.top = (parseInt(targetNote.style.top)+offset).toString() + 'px';
+        undoArea.style.left = (parseInt(targetNote.style.left)+offset).toString() + 'px';
+        var span = createElement('SPAN');
+        var textUndo = document.createTextNode('UNDO');
+        span.setAttribute('class','undo-text');
+        span.appendChild(textUndo);
+        undoArea.appendChild(span);
 
-        var div = createElement('DIV');
-        div.setAttribute('class','undo-area');
-        div.style.backgroundColor = '#cccccc';
-        div.style.width = s.width;
-        div.style.height = s.height;
-        div.style.position = 'absolute';
-        div.style.top = targetNote.style.top;
-        div.style.left = targetNote.style.left;
-        document.querySelector('body').appendChild(div);
+        document.querySelector('body').removeChild(targetNote);
+
+        // remove element from list and push it into undoList
+        list.splice(list.indexOf(targetNote),1);
+
+        document.querySelector('body').appendChild(undoArea);
+        undoAreaList.push(undoArea);
 
         // after 5 seconds..remove data
         // if undo area click I use localStorage data after JSON.parse them, and clear timeout.
         var timeout = setTimeout(function(){
-            localStorage.removeItem(targetNote.id);
+//            localStorage.removeItem(targetNote.id);
         },5000);
 
-        document.querySelector('body').removeChild(targetNote);
-        // remove element from list as well
-        list.splice(list.indexOf(targetNote),1);
     }
 });
 
@@ -155,7 +162,6 @@ function mousemove(e){
         var top  = fixed ? 0 : root.scrollTop;
         el.style.left = left + e.clientX - x - dx+ 'px';
         el.style.top = top + e.clientY - y -dx + 'px';
-
     }
 }
 
@@ -167,6 +173,7 @@ function mousemove(e){
 
 var btn = document.querySelector('#generate');
 var list=[];
+var undoAreaList =[];
 btn.addEventListener('click',function(e){
 
     var div = createElement('DIV');
