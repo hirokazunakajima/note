@@ -25,15 +25,14 @@ textarea{
     border-radius: 3px;
 }
 
-.close-btn{
+.close-btn,
+.delete-btn{
     position: absolute;
     top: 0;
     left: 100%;
     width:22px;
     height: 22px;
     padding: 0;
-    margin-top: -3px;
-    margin-left: -20px;
     color: #333333;
     background: #ffffff;
     border: 1px solid #999999;
@@ -42,9 +41,22 @@ textarea{
     text-decoration: none;
     text-align: center;
 }
+.close-btn{
+    margin-top: -3px;
+    margin-left: -20px;
+}
+.delete-btn{
+    margin-top: -8px;
+    margin-left: -15px;
+}
+
 /* close button click interaction */
 .close-btn:active{
     margin-top: -2px;
+}
+
+.delete-btn:active{
+    margin-top: -7px;
 }
 
 .undo-area{
