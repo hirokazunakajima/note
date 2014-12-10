@@ -137,6 +137,12 @@ addEvent(document,'mouseup',function(e){
         span.appendChild(textUndo);
         undoArea.appendChild(span);
 
+        var deleteBtn = createElement('SPAN');
+        var textX = document.createTextNode('x');
+        deleteBtn.setAttribute('class','delete-btn');
+        deleteBtn.appendChild(textX);
+        undoArea.appendChild(deleteBtn);
+
         document.querySelector('body').removeChild(targetNote);
 
         // remove element from list and push it into undoList
