@@ -63,7 +63,10 @@ function getStyle(el){
 
 addEvent(document,'mousedown',function(e){
 
+
     var target = e.target;
+    if(target.className =='delete-btn')return; // exception for delete button on UNDO area
+
     if(target.className.search('wrapper') != -1){
         x = e.offsetX || e.layerX; //webkit || moz
         y = e.offsetY || e.layerY;
@@ -125,7 +128,7 @@ addEvent(document,'mouseup',function(e){
         localStorage.setItem(targetNote.id,JSON.stringify(dataObj));
 
         var undoArea = createElement('DIV');
-        undoArea.setAttribute('class','undo-area');
+        undoArea.setAttribute('class','undo-wrapper');
         undoArea.style.width = s.width;
         undoArea.style.height = s.height;
         var offset = 20;
@@ -139,24 +142,24 @@ addEvent(document,'mouseup',function(e){
 
         var deleteBtn = createElement('SPAN');
         var textX = document.createTextNode('x');
-        deleteBtn.setAttribute('class','delete-btn');
+        setAttributes(deleteBtn,{'class':'delete-btn','id':targetNote.id}); // use the same id as note to delete button, this gonna be key for local strage
         deleteBtn.appendChild(textX);
         undoArea.appendChild(deleteBtn);
 
         document.querySelector('body').removeChild(targetNote);
+        list.splice(list.indexOf(targetNote),1); // remove element from list
 
-        // remove element from list and push it into undoList
-        list.splice(list.indexOf(targetNote),1);
-
-        document.querySelector('body').appendChild(undoArea);
+        document.querySelector('body').appendChild(undoArea); // add undo area
         undoAreaList.push(undoArea);
 
-        // after 5 seconds..remove data
-        // if undo area click I use localStorage data after JSON.parse them, and clear timeout.
-        var timeout = setTimeout(function(){
-//            localStorage.removeItem(targetNote.id);
-        },5000);
 
+    }else if(e.target.className=='delete-btn'){
+
+        // remove undo area including undo text
+        var undoWrapper = findParent(e,'undo-wrapper');
+        document.querySelector('body').removeChild(undoWrapper); // remove undo area
+        undoAreaList.splice(undoAreaList.indexOf(targetNote),1);
+        localStorage.removeItem(e.target.id); // remove data from local storage
     }
 });
 
