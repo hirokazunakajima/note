@@ -59,7 +59,7 @@ textarea{
     margin-top: -7px;
 }
 
-.undo-area{
+.undo-wrapper{
     cursor:pointer;
     display: flex;
     position: absolute;
