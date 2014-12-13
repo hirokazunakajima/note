@@ -25,8 +25,7 @@ textarea{
     border-radius: 3px;
 }
 
-.close-btn,
-.delete-btn{
+.close-btn{
     position: absolute;
     top: 0;
     left: 100%;
@@ -40,37 +39,66 @@ textarea{
     display: block;
     text-decoration: none;
     text-align: center;
-}
-.close-btn{
     margin-top: -3px;
     margin-left: -20px;
-}
-.delete-btn{
-    margin-top: -8px;
-    margin-left: -15px;
+
 }
 
-/* close button click interaction */
 .close-btn:active{
     margin-top: -2px;
 }
 
-.delete-btn:active{
-    margin-top: -7px;
-}
 
 .undo-wrapper{
-    cursor:pointer;
     display: flex;
     position: absolute;
+    padding-left: 6px;
+    padding-right: 6px;
     border-radius: 5px;
     background:#eee;
     border: 1px solid #ccc;
 }
 
-.undo-text{
-    margin: auto;
-    -webkit-user-select: none;
-    -moz-user-select: -moz-none;
-    user-select: none;
+/*
+    data undo
+*/
+button.undo-button {
+    margin: auto 3px auto auto;
+    background-color: #7fbf4d;
+    border: 1px solid #63a62f;
+    border-radius: 15px;
+    color: #ffffff;
+    padding: 5px;
+    text-align: center;
+    text-shadow: 0 -1px 0 #4c9021;
+    width: 50%;
+    height: 30px;
+    cursor: pointer;
+}
+
+
+button.undo-button:active {
+    border: 1px solid #5b992b;
+    box-shadow: inset 0 0 8px 4px #548c29, 0 1px 0 0 #eeeeee;
+}
+/*
+    data delete
+*/
+button.delete-btn{
+    margin: auto auto auto 3px;
+    background-color: #bf3a3a;
+    border: 1px solid #942e2e;
+    border-radius: 15px;
+    color: #ffffff;
+    padding: 5px;
+    text-align: center;
+    text-shadow: 0 -1px 0 #862d2d;
+    width: 50%;
+    height: 30px;
+    cursor: pointer;
+}
+
+button.delete-btn:active {
+    border: 1px solid #992d2c;
+    box-shadow: inset 0 0 8px 4px #691f1e, 0 1px 0 0 #eeeeee;
 }
