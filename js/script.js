@@ -11,23 +11,27 @@ window.onload = function () {
     if (isLocalStorage()) {
         console.log('localStorage OK');
 
+        // set primary key to note
+        if(localStorage.getItem('primaryKey')===null){
+            localStorage.setItem('primaryKey','0');
+        }
+
         // load saved data last time
         for(var i =0;i<localStorage.length;i++)
         {
             var pattern = /^note-\d+$/;
             if(pattern.test(localStorage.key(i))){
-                console.log(localStorage.key(i));
+//                console.log(localStorage.key(i));
+                var d = JSON.parse(localStorage.getItem(localStorage.key(i)));
+                createNote(d.id, d.top, d.left, d.width, d.height, d.text);
             };
         }
 
     } else {
         console.log('localStorage NO');
     }
-
-
-
-
 }
+
 
 function isLocalStorage() {
     try {
@@ -37,11 +41,11 @@ function isLocalStorage() {
     }
 }
 
-/******************
+/************************************
 
  mouse related event
 
- *******************/
+ *************************************/
 
 var root = document.documentElement;
 var dragging = false;
@@ -76,11 +80,10 @@ function getStyle(el) {
 
 addEvent(document, 'mousedown', function (e) {
 
-
     var target = e.target;
     if (target.className == 'delete-btn')return; // exception for delete button on UNDO area
 
-    if (target.className.search('^wrapper$') != -1) {
+    if (target.className.search('wrapper') != -1) {
 
         x = e.offsetX || e.layerX; //webkit || moz
         y = e.offsetY || e.layerY;
@@ -108,7 +111,10 @@ addEvent(document, 'mousedown', function (e) {
     var targetNote = findParent(e, 'wrapper');
     if (targetNote) {
         // change the z-index order of elements
-        if (noteList.length > 1) bringToFront(targetNote);
+        if (noteList.length > 1 )
+        {
+            bringToFront(targetNote);
+        }
     }
 
 });
@@ -123,63 +129,7 @@ addEvent(document, 'mouseup', function (e) {
         el.style.top = rect.top + 'px';
         el.style.position = 'fixed';
     }
-    // remove element (note)
-    if (e.target.className == 'close-btn') {
-        var targetNote = findParent(e, 'wrapper');
-        var textArea = e.target.previousSibling;
-        var s = getStyle(textArea);
 
-        // if textarea isn't empty, create undoArea
-        if (textArea.value !== '') {
-
-            // save textarea data as JSON format
-
-            var dataObj = {
-                'id':targetNote.id,
-                'top': targetNote.style.top,
-                'left': targetNote.style.left,
-                'width': s.width,
-                'height': s.height,
-                'text': textArea.value
-            }
-
-            // save object into localStorage
-            localStorage.setItem(targetNote.id, JSON.stringify(dataObj));
-
-            var undoArea = createElement('DIV');
-            undoArea.setAttribute('class','undo-wrapper');
-//            setAttributes(undoArea, {'class': 'undo-wrapper', 'data-id': targetNote.id});
-            undoArea.style.width = s.width;
-            undoArea.style.height = s.height;
-            var offset = 20;
-            undoArea.style.top = (parseInt(targetNote.style.top) + offset).toString() + 'px';
-            undoArea.style.left = (parseInt(targetNote.style.left) + offset).toString() + 'px';
-
-            var undoButton = createElement('button');
-            var textUndo = document.createTextNode('UNDO');
-            setAttributes(undoButton, {'class': 'undo-button', 'data-id': targetNote.id});
-
-            undoButton.appendChild(textUndo);
-            undoArea.appendChild(undoButton);
-
-            var deleteButton = createElement('button');
-            var textDelete = document.createTextNode('DELETE');
-            setAttributes(deleteButton, {'class': 'delete-btn', 'id': targetNote.id}); // use the same id as note to delete button, this gonna be key for local strage
-            deleteButton.appendChild(textDelete);
-            undoArea.appendChild(deleteButton);
-
-            document.querySelector('body').appendChild(undoArea); // add undo area
-
-//            undoAreaList.push(undoArea);
-
-            undoButton.addEventListener('click', undoData);
-            deleteButton.addEventListener('click', deleteData);
-        }
-
-        document.querySelector('body').removeChild(targetNote);
-        noteList.splice(noteList.indexOf(targetNote), 1); // remove element from noteList
-
-    }
 });
 
 
@@ -192,17 +142,98 @@ function mousemove(e) {
     }
 }
 
+
+/************************************
+
+    Close note, undo note, delete note
+
+ *************************************/
+
+function closeNote(e){
+
+// remove element (note)
+    if (e.target.className == 'close-btn') {
+        var targetNote = findParent(e, 'wrapper');
+        var textArea = e.target.previousSibling;
+        var s = getStyle(textArea);
+
+        // if textarea isn't empty, create undoArea
+        if (textArea.value !== '') {
+
+            // save textarea data as JSON format
+            var dataObj = {
+                'id':targetNote.id,
+                'top': targetNote.style.top,
+                'left': targetNote.style.left,
+                'width': s.width,
+                'height': s.height,
+                'text': textArea.value
+            }
+
+            // save object into localStorage
+            localStorage.setItem(targetNote.id, JSON.stringify(dataObj));
+            textArea.setAttribute('readonly','');
+            targetNote.className = targetNote.className + ' wrapper-disabled';
+            document.querySelector('#'+targetNote.id + ' .container').removeChild(e.target);
+
+            var undoButton = createElement('button');
+            var textUndo = document.createTextNode('UNDO');
+            setAttributes(undoButton, {'class': 'undo-btn', 'data-id': targetNote.id});
+
+            undoButton.appendChild(textUndo);
+            targetNote.appendChild(undoButton);
+
+            var deleteButton = createElement('button');
+            var textDelete = document.createTextNode('DELETE');
+            setAttributes(deleteButton, {'class': 'delete-btn', 'id': targetNote.id}); // use the same id as note to delete button, this gonna be key for local strage
+            deleteButton.appendChild(textDelete);
+            targetNote.appendChild(deleteButton);
+
+            undoButton.addEventListener('click', undoData);
+            deleteButton.addEventListener('click', deleteData);
+
+        }else{
+            // save -> undo -> remove all text -> then push close button
+            localStorage.removeItem(targetNote.id);
+            document.querySelector('body').removeChild(targetNote);
+            noteList.splice(noteList.indexOf(targetNote), 1); // remove element from noteList
+        }
+    }
+}
+
+
 function undoData(e) {
 
-    if (e.target.className == 'undo-button') {
+    if (e.target.className == 'undo-btn') {
 
+        var targetNote = findParent(e, 'wrapper');
         var undoButton = e.target;
         var dataId = undoButton.getAttribute('data-id');
         var d = JSON.parse(localStorage.getItem(dataId));
-        createNote(d.id, d.top, d.left, d.width, d.height, d.text);
 
-        var targetNote = findParent(e, 'undo-wrapper');
-        document.querySelector('body').removeChild(targetNote); // remove undo area
+    // 1, remove undo, delete button
+        var undoButton = e.target;
+        var deleteButton = targetNote.querySelector('.delete-btn');
+        targetNote.removeChild(undoButton);
+        targetNote.removeChild(deleteButton);
+
+    // 2, create close button
+        var closeButton = createElement('SPAN');
+        var textX = document.createTextNode('s');
+        closeButton.setAttribute('class', 'close-btn');
+        closeButton.addEventListener('click',closeNote);
+
+        var container = document.querySelector('#'+ d.id + ' .container');
+        container.appendChild(closeButton);
+        closeButton.appendChild(textX);
+
+    // 3, remove readonly property
+        var textArea = document.querySelector('#'+ d.id + ' textarea');
+        textArea.removeAttribute("readonly");
+
+    // 4, change CSS (remove ".wrapper-disabled")
+        targetNote.className = targetNote.className.replace(/\b.wrapper-disabled\b/,'');
+
     }
 }
 
@@ -210,23 +241,21 @@ function deleteData(e) {
 
     if (e.target.className == 'delete-btn') {
 
-        // remove undo area including undo text
-        var undoWrapper = findParent(e, 'undo-wrapper');
-        document.querySelector('body').removeChild(undoWrapper); // remove undo area
-//        undoAreaList.splice(undoAreaList.indexOf(undoWrapper), 1);
+        var targetNote = findParent(e, 'wrapper');
+        document.querySelector('body').removeChild(targetNote); // remove undo area
         localStorage.removeItem(e.target.id); // remove data from local storage
+        noteList.splice(noteList.indexOf(targetNote), 1); // remove element from noteList
     }
 }
 
-/******************
+/************************************
 
  generate note
 
- *******************/
+ *************************************/
 
 var btn = document.querySelector('#generate');
 var noteList = [];
-//var undoAreaList = [];
 btn.addEventListener('click', function (e) {
     createNote();
 });
@@ -241,25 +270,29 @@ function createNote(id , top, left, w, h, text) {
         note.setAttribute('id', id);
         note.style.top = top;
         note.style.left = left;
-        textarea.style.width = w;
-        textarea.style.height = h;
+//        textarea.style.width = w;
+//        textarea.style.height = h;
         textarea.value = text;
     }else{
         // initial creation of note
-        note.setAttribute('id', 'note-' + noteList.length);
+        var primaryKey = parseInt(localStorage.getItem('primaryKey'));
+        note.setAttribute('id', 'note-' + (++primaryKey).toString());
+        localStorage.setItem('primaryKey',primaryKey.toString());
+
     }
 
-    var span = createElement('SPAN');
-    var textX = document.createTextNode('-');
+    var closeButton = createElement('SPAN');
+    var textX = document.createTextNode('s');
 
     note.setAttribute('class', 'wrapper');
 
     section.setAttribute('class', 'container');
-    span.setAttribute('class', 'close-btn');
+    closeButton.setAttribute('class', 'close-btn');
+    closeButton.addEventListener('click',closeNote);
 
     section.appendChild(textarea);
-    section.appendChild(span);
-    span.appendChild(textX);
+    section.appendChild(closeButton);
+    closeButton.appendChild(textX);
 
     note.appendChild(section);
     noteList.push(note);
@@ -267,6 +300,12 @@ function createNote(id , top, left, w, h, text) {
     document.querySelector('body').appendChild(note);
 }
 
+
+/******************
+ *
+ *      Helper
+ *
+ ******************/
 // Bring obj you clicked to front
 // 1. remove clicked note from noteList and push to the same noteList again (change the order)
 // 2. set z-index again follow noteList array order to move note clicked to top z-index
@@ -285,11 +324,7 @@ function bringToFront(clickedObj) {
 }
 
 
-/******************
- *
- *      Helper
- *
- ******************/
+
 function setAttributes(el, args) {
     for (var key in args) {
         el.setAttribute(key, args[key]);
