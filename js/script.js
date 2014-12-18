@@ -174,7 +174,12 @@ function closeNote(e){
             localStorage.setItem(targetNote.id, JSON.stringify(dataObj));
             textArea.setAttribute('readonly','');
             targetNote.className = targetNote.className + ' wrapper-disabled';
-            document.querySelector('#'+targetNote.id + ' .container').removeChild(e.target);
+            var buttons = document.querySelectorAll('#'+targetNote.id + ' .container > span');
+            for(var i=0; i<buttons.length; i++)
+            {
+                document.querySelector('#'+targetNote.id + ' .container').removeChild(buttons[i]);
+            }
+
 
             var undoButton = createElement('button');
             var textUndo = document.createTextNode('UNDO');
@@ -219,13 +224,25 @@ function undoData(e) {
 
     // 2, create close button
         var closeButton = createElement('SPAN');
-        var textX = document.createTextNode('s');
+        closeButton.appendChild(document.createTextNode('x'));
         closeButton.setAttribute('class', 'close-btn');
         closeButton.addEventListener('click',closeNote);
 
+        var zoomButton = createElement('SPAN');
+        zoomButton.setAttribute('class', 'zoom-btn');
+        zoomButton.addEventListener('click',zoomNote);
+        zoomButton.appendChild(document.createTextNode('+'));
+
+        var smallButton = createElement('SPAN');
+        smallButton.setAttribute('class', 'small-btn');
+        smallButton.addEventListener('click',smallNote);
+        smallButton.appendChild(document.createTextNode('-'));
+
         var container = document.querySelector('#'+ d.id + ' .container');
         container.appendChild(closeButton);
-        closeButton.appendChild(textX);
+        container.appendChild(zoomButton);
+        container.appendChild(smallButton);
+
 
     // 3, remove readonly property
         var textArea = document.querySelector('#'+ d.id + ' textarea');
@@ -248,6 +265,24 @@ function deleteData(e) {
     }
 }
 
+function zoomNote(e) {
+    var targetNote = findParent(e, 'wrapper');
+    var textArea = document.querySelector('#'+targetNote.id + ' textarea');
+
+    if(parseInt(textArea.style.fontSize)<30){
+        textArea.style.fontSize = (parseInt(textArea.style.fontSize)+1).toString() + 'px';
+    }
+}
+function smallNote(e) {
+    var targetNote = findParent(e, 'wrapper');
+    var textArea = document.querySelector('#'+targetNote.id + ' textarea');
+
+    if(parseInt(textArea.style.fontSize)>5){
+        textArea.style.fontSize = (parseInt(textArea.style.fontSize)-1).toString() + 'px';
+    }
+}
+
+
 /************************************
 
  generate note
@@ -264,6 +299,9 @@ function createNote(id , top, left, w, h, text) {
     var note = createElement('DIV');
     var section = createElement('SECTION');
     var textarea = createElement('TEXTAREA');
+    textarea.style.height = '100px';
+    textarea.style.width = '150px';
+    textarea.style.fontSize = '10px';
 
     // create note with params, this will be called from UNDO action
     if (id && top && left && w && h && text) {
@@ -281,18 +319,31 @@ function createNote(id , top, left, w, h, text) {
 
     }
 
+    // close button
     var closeButton = createElement('SPAN');
-    var textX = document.createTextNode('s');
+    closeButton.setAttribute('class', 'close-btn');
+    closeButton.addEventListener('click',closeNote);
+    closeButton.appendChild(document.createTextNode('x'));
+
+    var zoomButton = createElement('SPAN');
+    zoomButton.setAttribute('class', 'zoom-btn');
+    zoomButton.addEventListener('click',zoomNote);
+    zoomButton.appendChild(document.createTextNode('+'));
+
+    var smallButton = createElement('SPAN');
+    smallButton.setAttribute('class', 'small-btn');
+    smallButton.addEventListener('click',smallNote);
+    smallButton.appendChild(document.createTextNode('-'));
 
     note.setAttribute('class', 'wrapper');
 
     section.setAttribute('class', 'container');
-    closeButton.setAttribute('class', 'close-btn');
-    closeButton.addEventListener('click',closeNote);
+
 
     section.appendChild(textarea);
     section.appendChild(closeButton);
-    closeButton.appendChild(textX);
+    section.appendChild(zoomButton);
+    section.appendChild(smallButton);
 
     note.appendChild(section);
     noteList.push(note);
