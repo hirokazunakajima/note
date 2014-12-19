@@ -28,7 +28,7 @@ window.onload = function () {
         }
 
     } else {
-        console.log('localStorage NO');
+        alert('Sorry, we could\'t detect local storage, so you can\'t use this "post-it."');
     }
 }
 
@@ -52,23 +52,6 @@ var dragging = false;
 var x, y, dy, dx;
 var el;
 
-// mainly this function will is used to remove 'mousemove' envet as much as possible.
-var addEvent = function (node, type, listener) {
-    node.addEventListener(type, listener, false);
-}
-
-var removeEvent = function (node, type, listener) {
-    node.removeEventListener(type, listener, false);
-}
-
-addEvent(document, 'mousedown', function (e) {
-    addEvent(document, 'mousemove', mousemove);
-});
-
-addEvent(document, 'mouseup', function (e) {
-    removeEvent(document, 'mousemove', mousemove);
-});
-
 
 var left = root.scrollLeft;
 var top = root.scrollTop;
@@ -78,7 +61,9 @@ function getStyle(el) {
     return window.getComputedStyle(el, '');
 }
 
-addEvent(document, 'mousedown', function (e) {
+
+function mouseDown(e){
+
 
     var target = e.target;
     if (target.className == 'delete-btn')return; // exception for delete button on UNDO area
@@ -104,7 +89,7 @@ addEvent(document, 'mousedown', function (e) {
             dy = (rect.top + top) - el.offsetTop;
         }
 
-        addEvent(document, 'mousemove', mousemove);
+        document.addEventListener('mousemove',mousemove,false);
 
     }
 
@@ -117,21 +102,21 @@ addEvent(document, 'mousedown', function (e) {
         }
     }
 
-});
 
+}
 
-addEvent(document, 'mouseup', function (e) {
+function mouseup(e){
+    document.removeEventListener('mousemove',mousemove,false);
+
     if (dragging) {
         dragging = false;
-        removeEvent(document, 'mousemove', mousemove);
+//        removeEvent(document, 'mousemove', mousemove);
         var rect = el.getBoundingClientRect();
         el.style.left = rect.left + 'px';
         el.style.top = rect.top + 'px';
         el.style.position = 'fixed';
     }
-
-});
-
+}
 
 function mousemove(e) {
     if (dragging) {
@@ -141,6 +126,8 @@ function mousemove(e) {
         el.style.top = top + e.clientY - y - dx + 'px';
     }
 }
+
+
 
 
 /************************************
@@ -224,7 +211,7 @@ function undoData(e) {
 
     // 2, create close button
         var closeButton = createElement('SPAN');
-        closeButton.appendChild(document.createTextNode('x'));
+        closeButton.appendChild(document.createTextNode('⇣'));
         closeButton.setAttribute('class', 'close-btn');
         closeButton.addEventListener('click',closeNote);
 
@@ -243,7 +230,6 @@ function undoData(e) {
         container.appendChild(zoomButton);
         container.appendChild(smallButton);
 
-
     // 3, remove readonly property
         var textArea = document.querySelector('#'+ d.id + ' textarea');
         textArea.removeAttribute("readonly");
@@ -258,10 +244,12 @@ function deleteData(e) {
 
     if (e.target.className == 'delete-btn') {
 
-        var targetNote = findParent(e, 'wrapper');
-        document.querySelector('body').removeChild(targetNote); // remove undo area
-        localStorage.removeItem(e.target.id); // remove data from local storage
-        noteList.splice(noteList.indexOf(targetNote), 1); // remove element from noteList
+        if(confirm("Are you sure?")){
+            var targetNote = findParent(e, 'wrapper');
+            document.querySelector('body').removeChild(targetNote); // remove undo area
+            localStorage.removeItem(e.target.id); // remove data from local storage
+            noteList.splice(noteList.indexOf(targetNote), 1); // remove element from noteList
+        }
     }
 }
 
@@ -323,7 +311,7 @@ function createNote(id , top, left, w, h, text) {
     var closeButton = createElement('SPAN');
     closeButton.setAttribute('class', 'close-btn');
     closeButton.addEventListener('click',closeNote);
-    closeButton.appendChild(document.createTextNode('x'));
+    closeButton.appendChild(document.createTextNode('⇣'));
 
     var zoomButton = createElement('SPAN');
     zoomButton.setAttribute('class', 'zoom-btn');
@@ -349,8 +337,10 @@ function createNote(id , top, left, w, h, text) {
     noteList.push(note);
     note.style.zIndex = noteList.length;
     document.querySelector('body').appendChild(note);
-}
 
+    note.addEventListener('mousedown',mouseDown,false);
+    note.addEventListener('mouseup',mouseup,false);
+}
 
 /******************
  *
