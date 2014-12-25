@@ -101,8 +101,6 @@ function mouseDown(e){
             bringToFront(targetNote);
         }
     }
-
-
 }
 
 function mouseup(e){
@@ -135,6 +133,31 @@ function mousemove(e) {
     Close note, undo note, delete note
 
  *************************************/
+
+function saveNote(e){
+
+        var targetNote = findParent(e, 'wrapper');
+        var textArea = e.target;
+        var s = getStyle(textArea);
+
+        // if textarea isn't empty, create undoArea
+        if (textArea.value !== '') {
+
+            // save textarea data as JSON format
+            var dataObj = {
+                'id':targetNote.id,
+                'top': targetNote.style.top,
+                'left': targetNote.style.left,
+                'width': s.width,
+                'height': s.height,
+                'text': textArea.value
+            }
+
+            // save object into localStorage
+            localStorage.setItem(targetNote.id, JSON.stringify(dataObj));
+
+    }
+}
 
 function closeNote(e){
 
@@ -211,18 +234,18 @@ function undoData(e) {
 
     // 2, create close button
         var closeButton = createElement('SPAN');
-        closeButton.appendChild(document.createTextNode('⇣'));
+        closeButton.appendChild(document.createTextNode('x'));
         closeButton.setAttribute('class', 'close-btn');
         closeButton.addEventListener('click',closeNote);
 
         var zoomButton = createElement('SPAN');
         zoomButton.setAttribute('class', 'zoom-btn');
-        zoomButton.addEventListener('click',zoomNote);
+        zoomButton.addEventListener('click',zoomChar);
         zoomButton.appendChild(document.createTextNode('+'));
 
         var smallButton = createElement('SPAN');
         smallButton.setAttribute('class', 'small-btn');
-        smallButton.addEventListener('click',smallNote);
+        smallButton.addEventListener('click',smallChar);
         smallButton.appendChild(document.createTextNode('-'));
 
         var container = document.querySelector('#'+ d.id + ' .container');
@@ -244,7 +267,7 @@ function deleteData(e) {
 
     if (e.target.className == 'delete-btn') {
 
-        if(confirm("Are you sure?")){
+        if(confirm("Are you sure? About to delete selected note.")){
             var targetNote = findParent(e, 'wrapper');
             document.querySelector('body').removeChild(targetNote); // remove undo area
             localStorage.removeItem(e.target.id); // remove data from local storage
@@ -253,7 +276,7 @@ function deleteData(e) {
     }
 }
 
-function zoomNote(e) {
+function zoomChar(e) {
     var targetNote = findParent(e, 'wrapper');
     var textArea = document.querySelector('#'+targetNote.id + ' textarea');
 
@@ -261,7 +284,7 @@ function zoomNote(e) {
         textArea.style.fontSize = (parseInt(textArea.style.fontSize)+1).toString() + 'px';
     }
 }
-function smallNote(e) {
+function smallChar(e) {
     var targetNote = findParent(e, 'wrapper');
     var textArea = document.querySelector('#'+targetNote.id + ' textarea');
 
@@ -311,16 +334,16 @@ function createNote(id , top, left, w, h, text) {
     var closeButton = createElement('SPAN');
     closeButton.setAttribute('class', 'close-btn');
     closeButton.addEventListener('click',closeNote);
-    closeButton.appendChild(document.createTextNode('⇣'));
+    closeButton.appendChild(document.createTextNode('x'));
 
     var zoomButton = createElement('SPAN');
     zoomButton.setAttribute('class', 'zoom-btn');
-    zoomButton.addEventListener('click',zoomNote);
+    zoomButton.addEventListener('click',zoomChar);
     zoomButton.appendChild(document.createTextNode('+'));
 
     var smallButton = createElement('SPAN');
     smallButton.setAttribute('class', 'small-btn');
-    smallButton.addEventListener('click',smallNote);
+    smallButton.addEventListener('click',smallChar);
     smallButton.appendChild(document.createTextNode('-'));
 
     note.setAttribute('class', 'wrapper');
@@ -340,7 +363,10 @@ function createNote(id , top, left, w, h, text) {
 
     note.addEventListener('mousedown',mouseDown,false);
     note.addEventListener('mouseup',mouseup,false);
+    textarea.addEventListener('keyup',saveNote);
 }
+
+
 
 /******************
  *
